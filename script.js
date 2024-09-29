@@ -170,8 +170,17 @@ function sendList() {
 	const shareLinkUrl = document.getElementById('link');
 
 	copyBtn.style.display = 'block';
-	shareLinkUrl.dataset.link = listUrl;
+	shareLinkUrl.href = listUrl;
 	console.log(listUrl);
+}
+
+function copyUrl(event) {
+	event.preventDefault();
+	const shareLinkUrl = document.getElementById('link');
+
+	navigator.clipboard.writeText(shareLinkUrl.href);
+
+	alert('Link Copied to Clipboard');
 }
 
 function getList() {
@@ -240,6 +249,7 @@ function init() {
 	clearBtn.addEventListener('click', clearItems);
 	itemFilter.addEventListener('input', filterItems);
 	sendBtn.addEventListener('click', sendList);
+	copyBtn.addEventListener('click', copyUrl);
 	document.addEventListener('DOMContentLoaded', getList);
 	document.addEventListener('DOMContentLoaded', displayItems);
 
