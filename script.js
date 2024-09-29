@@ -3,6 +3,8 @@ const itemInput = document.getElementById('item-input');
 const itemList = document.getElementById('item-list');
 const clearBtn = document.getElementById('clear');
 const itemFilter = document.getElementById('filter');
+const sendBtn = document.getElementById('send');
+const copyBtn = document.getElementById('link');
 const formBtn = itemForm.querySelector('button');
 let isEditMode = false;
 
@@ -91,7 +93,12 @@ function getItemsFromStorage() {
 	if (localStorage.getItem('items') === null) {
 		itemsFromStorage = [];
 	} else {
-		itemsFromStorage = JSON.parse(localStorage.getItem('items'));
+		try {
+			itemsFromStorage = JSON.parse(localStorage.getItem('items'));
+		} catch (e) {
+			console.error('Error parsing JSON from localStorage', e);
+			itemsFromStorage = [];
+		}
 	}
 
 	return itemsFromStorage;
@@ -156,6 +163,38 @@ function clearItems() {
 	checkUI();
 }
 
+function sendList() {
+	let itemsFromStorage = getItemsFromStorage();
+	const encodedList = encodeURIComponent(JSON.stringify(itemsFromStorage));
+	const listUrl = `${window.location.origin}?list=${encodedList}`;
+	const shareLinkUrl = document.getElementById('link');
+
+	copyBtn.style.display = 'block';
+	shareLinkUrl.dataset.link = listUrl;
+	console.log(listUrl);
+}
+
+function getList() {
+	const urlParams = new URLSearchParams(window.location.search);
+	const listParam = urlParams.get('list');
+	const savedList = JSON.parse(localStorage.getItem('items')) || [];
+
+	if (listParam) {
+		const decodedList = decodeURIComponent(listParam);
+
+		try {
+			const itemsArray = JSON.parse(decodedList);
+			localStorage.setItem('items', JSON.stringify(itemsArray));
+			console.log(itemsArray);
+		} catch (e) {
+			console.error('Error parsing the list: ', e);
+		}
+	}
+
+	console.log(savedList);
+	updateListUI(savedList);
+}
+
 function filterItems(e) {
 	const items = itemList.querySelectorAll('li');
 	const text = e.target.value.toLowerCase();
@@ -179,9 +218,12 @@ function checkUI() {
 	if (items.length === 0) {
 		clearBtn.style.display = 'none';
 		itemFilter.style.display = 'none';
+		sendBtn.style.display = 'none';
+		copyBtn.style.display = 'none';
 	} else {
 		clearBtn.style.display = 'block';
 		itemFilter.style.display = 'block';
+		sendBtn.style.display = 'block';
 	}
 
 	formBtn.innerHTML = '<i class="fa-solid fa-plus"></i> Add Item';
@@ -197,6 +239,8 @@ function init() {
 	itemList.addEventListener('click', onClickItem);
 	clearBtn.addEventListener('click', clearItems);
 	itemFilter.addEventListener('input', filterItems);
+	sendBtn.addEventListener('click', sendList);
+	document.addEventListener('DOMContentLoaded', getList);
 	document.addEventListener('DOMContentLoaded', displayItems);
 
 	checkUI();
