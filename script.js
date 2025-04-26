@@ -131,15 +131,12 @@ function setItemToEdit(item) {
 }
 
 function removeItem(item) {
-	if (confirm('Are you sure?')) {
-		// Remove item from DOM
-		item.remove();
+	item.remove();
 
-		// Remove item from storage
-		removeItemFromStorage(item.textContent);
+	// Remove item from storage
+	removeItemFromStorage(item.textContent);
 
-		checkUI();
-	}
+	checkUI();
 }
 
 function removeItemFromStorage(item) {
@@ -153,14 +150,16 @@ function removeItemFromStorage(item) {
 }
 
 function clearItems() {
-	while (itemList.firstChild) {
-		itemList.removeChild(itemList.firstChild);
+	if (confirm('Are you sure you want to clear all items?')) {
+		while (itemList.firstChild) {
+			itemList.removeChild(itemList.firstChild);
+		}
+
+		// Clear from localStorage
+		localStorage.removeItem('items');
+
+		checkUI();
 	}
-
-	// Clear from localStorage
-	localStorage.removeItem('items');
-
-	checkUI();
 }
 
 function sendList() {
